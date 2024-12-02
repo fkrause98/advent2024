@@ -58,4 +58,8 @@ common shared-deps
 
 executable day1
         import: shared-deps
-        main-is: Main.hs
+        main-is: Day1.hs
+
+executable day2
+        import: shared-deps
+        main-is: Day2.hs
