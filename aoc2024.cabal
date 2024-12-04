@@ -51,7 +51,7 @@ common warnings
     ghc-options: -Wall
 
 common shared-deps
-    build-depends:    base ^>=4.17.2.1, megaparsec
+    build-depends:    base ^>=4.17.2.1, megaparsec, mtl
     default-language: GHC2021
     ghc-options:      -Wall
     hs-source-dirs:   app
