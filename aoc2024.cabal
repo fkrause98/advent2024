@@ -51,7 +51,7 @@ common warnings
     ghc-options: -Wall
 
 common shared-deps
-    build-depends:    base ^>=4.17.2.1, megaparsec, mtl
+    build-depends:    base, megaparsec, containers, split, unordered-containers, matrix, mtl
     default-language: GHC2021
     ghc-options:      -Wall
     hs-source-dirs:   app
@@ -67,3 +67,15 @@ executable day2
 executable day3
         import: shared-deps
         main-is: Day3.hs
+
+executable day4
+        import: shared-deps
+        main-is: Day4.hs
+
+executable day5
+        import: shared-deps
+        main-is: Day5.hs
+
+executable day6
+        import: shared-deps
+        main-is: Day6.hs
