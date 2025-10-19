@@ -1,30 +1,40 @@
 
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Main where
 
 import Data.Matrix
 import Data.List (findIndex)
 import Data.Set (insert)
 import qualified Data.Set as Set
-import qualified Debug.Trace
+import qualified Data.Matrix as Matrix
+import Data.HashSet
+import Data.Hashable
+import GHC.Generics (Generic)
 
 
 main :: IO ()
-main = part1
+main = part2
 
 part1 :: IO ()
 part1 = do
   (charMatrix, guardState) <- buildMap <$> readFile "./input/day6.txt"
-  print charMatrix
-  print guardState
   let visited = walk guardState charMatrix (Set.singleton (position guardState))
-  print visited
-  print $ markMap charMatrix visited
+  print $ Set.size visited
+
+part2 :: IO ()
+part2 = do
+  (charMatrix, guardState) <- buildMap <$> readFile "./input/day6.txt"
+  let loops = solvePart2 guardState charMatrix
+  print $ loops
 
 
 
 data Direction = North | South | West | East
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic)
+instance Hashable Direction
+
 data GuardState = GuardState { position :: (Int, Int), dir :: Direction } deriving (Eq, Show)
 type Visited = Set.Set (Int, Int)
 
@@ -56,8 +66,8 @@ walk :: GuardState -> Matrix Char -> Visited -> Visited
 walk guard mmap visited =
     case safeGet newX newY mmap of
       Just '#' -> walk ( guard { dir = turnRight guard  } ) mmap visited
-      Just _ -> walk (guard { position = (newX, newY) }) mmap (insert (currX, currY) visited)
-      Nothing -> (insert (currX, currY) visited)
+      Just _ -> walk (guard { position = (newX, newY) }) mmap (Data.Set.insert (currX, currY) visited)
+      Nothing -> (Data.Set.insert (currX, currY) visited)
   where
     (x, y) = (increment guard)
     (currX, currY) = position guard
@@ -73,3 +83,34 @@ markMap mmap visited =
             char
       )
       mmap
+
+
+solvePart2 :: GuardState -> Matrix Char -> Int
+solvePart2 guard m = length $ Prelude.filter ( == True ) $ Prelude.map (walksIntoALoop guard Data.HashSet.empty) (mapsWithObstacles m)
+
+
+mapsWithObstacles :: Matrix Char -> [Matrix Char]
+mapsWithObstacles m = Prelude.map (generateMapWithNewObstacle m)  [(x, y) | x <- [1..(nrows m)], y <- [1..(ncols m)]]
+
+generateMapWithNewObstacle :: Matrix Char -> (Int, Int) -> Matrix Char
+generateMapWithNewObstacle m (x, y) =
+  case safeGet x y m of
+    Just '^' -> m
+    Just '#' -> m
+    Just _ -> Matrix.setElem '#' (x, y) m
+    Nothing -> error "Out of bounds"
+
+
+walksIntoALoop :: GuardState -> HashSet ((Int, Int), Direction) -> Matrix Char -> Bool
+walksIntoALoop guard visited mmap
+  | Data.HashSet.member (position guard, dir guard) visited = True
+  | otherwise =
+      let newVisited = Data.HashSet.insert (position guard, dir guard) visited
+          (dx, dy)     = increment guard
+          (currX, currY) = position guard
+          (newX, newY)   = (currX + dx, currY + dy)
+      in
+        case safeGet newX newY mmap of
+          Just '#' -> walksIntoALoop (guard { dir = turnRight guard }) newVisited mmap
+          Just _   -> walksIntoALoop (guard { position = (newX, newY) }) newVisited mmap
+          Nothing  -> False
