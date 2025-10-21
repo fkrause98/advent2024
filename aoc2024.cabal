@@ -91,3 +91,7 @@ executable day10
 executable day11
         import: shared-deps
         main-is: Day11.hs
+
+executable day12
+        import: shared-deps
+        main-is: Day12.hs
