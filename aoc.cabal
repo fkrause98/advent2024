@@ -138,3 +138,7 @@ executable  day15-2021
 executable  day5-2025
         import: shared-deps
         main-is: Day5_2025.hs
+
+executable  day6-2025
+        import: shared-deps
+        main-is: Day6_2025.hs

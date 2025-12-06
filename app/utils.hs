@@ -54,7 +54,7 @@ addTuples (x, y) (u, v) = (x + u, y + v)
 fetch :: (Ord k) => M.Map k v -> k -> Maybe v
 fetch m x = M.lookup x m
 
-buildGrid :: [[Int]] -> M.Map (Int, Int) Int
+buildGrid :: [[a]] -> M.Map (Int, Int) a
 buildGrid input =
     M.fromList
         [ ((x, y), (input !! x) !! y) | x <- [0 .. (length input) - 1], y <- [0 .. (length $ input !! x) - 1]
@@ -83,3 +83,11 @@ mapDeltas1 t = map (addTuples t) deltas1
 
 digitize :: String -> [Int]
 digitize = map digitToInt
+
+splitOnWhitespace :: [[Char]] -> [[[Char]]]
+splitOnWhitespace = go []
+  where
+    go acc [] = [reverse acc | not (null acc)]
+    go acc (x:xs)
+      | all (== ' ') x = (if null acc then id else (reverse acc :)) (go [] xs)
+      | otherwise      = go (x:acc) xs
