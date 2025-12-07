@@ -88,6 +88,9 @@ splitOnWhitespace :: [[Char]] -> [[[Char]]]
 splitOnWhitespace = go []
   where
     go acc [] = [reverse acc | not (null acc)]
-    go acc (x:xs)
-      | all (== ' ') x = (if null acc then id else (reverse acc :)) (go [] xs)
-      | otherwise      = go (x:acc) xs
+    go acc (x : xs)
+        | all (== ' ') x = (if null acc then id else (reverse acc :)) (go [] xs)
+        | otherwise = go (x : acc) xs
+
+readNums :: [[String]] -> [[Int]]
+readNums s = map (map read) s

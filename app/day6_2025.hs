@@ -1,46 +1,48 @@
--- |
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Main where
 
-import Utils
-import Data.List (groupBy, group, sortOn, transpose)
 import Data.Function (on)
-
+import Data.List (group, groupBy, sortOn, transpose)
+import Utils
 
 resultFor :: String -> [Int] -> Int
 resultFor "*" xs = product xs
 resultFor "+" xs = sum xs
 
 part1 input =
-  let flat =  concatMap (zip [0..]) $ reverse input
-      g = groupBy ((==) `on` fst) $ sortOn fst flat
-      results = map ( \col ->
-                      let
+    let
+        flat = concatMap (zip [0 ..]) $ reverse input
+        g = groupBy ((==) `on` fst) $ sortOn fst flat
+        results =
+            map
+                ( \col ->
+                    let
                         [(_, op)] = take 1 $ col
                         xs = map (\(_, num) -> read num :: Int) $ drop 1 col
-                      in
+                     in
                         resultFor op xs
-                      ) g
-  in
-    sum results
-
-
-readNums :: [[String]] -> [[Int]]
-readNums s = map (map read) s
+                )
+                g
+     in
+        sum results
 
 doMath :: ([Int], String) -> Int
 doMath (inputs, "+") = sum inputs
 doMath (inputs, "*") = product inputs
 
-part2 xs = sum $ map doMath xs
+part2 :: String -> Int
+part2 input = sum $ map doMath mathProblems
+  where
+    ops = words $ last $ lines $ input
+    inputs = splitOnWhitespace $ transpose $ init $ lines $ input
+    mathProblems = zip (readNums inputs) ops
 
 main :: IO ()
 main = do
-  input <- actualInput
-  let ops = words $ last $ lines $ input
-  let inputs = splitOnWhitespace $ transpose $ init $ lines $ input
-  print $ part2 $ zip (readNums inputs) ops
+    input <- actualInput
+    print $ part2 input
 
-testInput = readFile  "./input/day6_2025_test.txt"
+testInput = readFile "./input/day6_2025_test.txt"
 
 actualInput = readFile "./input/day6_2025.txt"
